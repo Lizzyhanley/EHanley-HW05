@@ -8,7 +8,7 @@
 
 import UIKit
 
-class ViewController: UIViewController, UIPickerViewDataSource, UIPickerViewDelegate {
+class ViewController: UIViewController, UIPickerViewDataSource, UIPickerViewDelegate, UITextFieldDelegate {
     
     
     @IBOutlet weak var userInput: UITextField!
@@ -16,13 +16,20 @@ class ViewController: UIViewController, UIPickerViewDataSource, UIPickerViewDele
     @IBOutlet weak var fromUnitsLabel: UILabel!
     @IBOutlet weak var formulaPicker: UIPickerView!
     @IBOutlet weak var decimalSegment: UISegmentedControl!
+    @IBOutlet weak var posNeg: UISegmentedControl!
     
     var formulasArray = ["miles to kilometers",
                          "kilometers to miles",
                          "feet to meters",
                          "yards to meters",
                          "meters to feet",
-                         "meters to yards"]
+                         "meters to yards",
+                         "inches to centimeters",
+                         "centimeters to inches",
+                         "fahernhait to celsius",
+                         "celsius to fahrenhait",
+                         "quarts to liters",
+                         "liters to quarts"]
     
     var toUnits = " "
     var fromUnits = " "
@@ -35,8 +42,13 @@ class ViewController: UIViewController, UIPickerViewDataSource, UIPickerViewDele
     
     formulaPicker.dataSource = self
     formulaPicker.delegate = self
+    
+      userInput.delegate = self
+        
         
     conversionString = formulasArray[0]
+        
+        userInput.becomeFirstResponder()
         
     }
     
@@ -51,6 +63,18 @@ class ViewController: UIViewController, UIPickerViewDataSource, UIPickerViewDele
         alertController.addAction(defaultAction)
         present(alertController, animated: true, completion: nil)
     
+    }
+    
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+     textField.resignFirstResponder()
+        
+        return true
+    }
+    
+    func textFieldShouldClear(_ textField: UITextField) -> Bool {
+        resultsLabel.text = ""
+        posNeg.selectedSegmentIndex = 0
+        return true
     }
     
     func calculateConversion() {
@@ -74,6 +98,18 @@ class ViewController: UIViewController, UIPickerViewDataSource, UIPickerViewDele
                 outputValue = inputValue * 3.2808
             case "meters to yards":
                 outputValue = inputValue * 1.0936
+            case    "inches to centimeters":
+                outputValue = inputValue / 0.39370
+            case    "centimeters to inches":
+                outputValue = inputValue * 0.39370
+            case "fahernhait to celsius":
+                outputValue = (inputValue - 32) * (5/9)
+            case "celsius to fahrenhait":
+                outputValue = (inputValue * (5/9)) + 32
+            case "quarts to liters":
+                outputValue = inputValue / 1.05669
+            case "liters to quarts":
+                outputValue = inputValue / 1.05669
             default:
                 showAlert()
             }
@@ -120,9 +156,20 @@ class ViewController: UIViewController, UIPickerViewDataSource, UIPickerViewDele
         fromUnits = unitsArray[0]
         toUnits = unitsArray[1]
         fromUnitsLabel.text = fromUnits
-        //resultsLabel.text = toUnits
-        calculateConversion()
         
+        if conversionString == "fahernhait to celsius" || conversionString == "celsius to fahrenhait" {
+        posNeg.isHidden = false
+        } else {
+            posNeg.isHidden = true
+            userInput.text = userInput.text!.replacingOccurrences(of: "-", with: "")
+            posNeg.selectedSegmentIndex = 0
+        }
+        
+        if userInput.text?.characters.count != 0 {
+            calculateConversion()
+
+        
+    }
     }
     
     
@@ -136,10 +183,24 @@ class ViewController: UIViewController, UIPickerViewDataSource, UIPickerViewDele
     
     
     @IBAction func decimalSelected(_ sender: UISegmentedControl) {
-    
+        
         calculateConversion()
-    
+        
     }
     
-}    
-
+    @IBAction func posNegPressed(_ sender: UISegmentedControl) {
+        
+        if posNeg.selectedSegmentIndex == 1 {
+            userInput.text = "-" + userInput.text!
+        }else{
+            userInput.text = userInput.text!.replacingOccurrences(of: "-", with: "")
+            
+        }
+        
+        if userInput.text != "-" {
+            calculateConversion()
+        }
+        
+    }
+    
+}
