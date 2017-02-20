@@ -15,7 +15,7 @@ class ViewController: UIViewController, UIPickerViewDataSource, UIPickerViewDele
     @IBOutlet weak var resultsLabel: UILabel!
     @IBOutlet weak var fromUnitsLabel: UILabel!
     @IBOutlet weak var formulaPicker: UIPickerView!
-    
+    @IBOutlet weak var decimalSegment: UISegmentedControl!
     
     var formulasArray = ["miles to kilometers",
                          "kilometers to miles",
@@ -36,7 +36,8 @@ class ViewController: UIViewController, UIPickerViewDataSource, UIPickerViewDele
     formulaPicker.dataSource = self
     formulaPicker.delegate = self
         
-    
+    conversionString = formulasArray[0]
+        
     }
     
     override func didReceiveMemoryWarning() {
@@ -56,8 +57,9 @@ class ViewController: UIViewController, UIPickerViewDataSource, UIPickerViewDele
         
         var inputValue = 0.0
         var outputValue = 0.0
+        var outputString = " "
         
-        if let inputValue = Double[userInput.text!] {
+        if let inputValue = Double(userInput.text!) {
             
             switch conversionString {
             case "miles to kilometers":
@@ -80,7 +82,15 @@ class ViewController: UIViewController, UIPickerViewDataSource, UIPickerViewDele
             showAlert()
         }
         
-        resultsLabel.text = "\(userInput.text!) \(fromUnits) = \(outputValue) \(toUnits)"
+        
+        if decimalSegment.selectedSegmentIndex < 3 {
+            outputString = String(format: "%." + String(decimalSegment.selectedSegmentIndex+1) + "f", outputValue)
+        } else {
+            outputString = String(outputValue)
+        }
+        
+        
+        resultsLabel.text = "\(userInput.text!) \(fromUnits) = \(outputString) \(toUnits)"
         
     }
     
@@ -117,18 +127,19 @@ class ViewController: UIViewController, UIPickerViewDataSource, UIPickerViewDele
     
     
     
-    // MARK:- @IBActions
+    // MARK:- Actions
     @IBAction func convertBtnPressed(_ sender: UIButton) {
         
+        calculateConversion()
         
-        
-        if let miles = Double(userInput.text!) {
-            let km = miles * 1.6
-            resultsLabel.text = "\(miles) miles = \(km) kilometers"
-        } else {
-            resultsLabel.text = " "
-            
-        }
     }
-}
+    
+    
+    @IBAction func decimalSelected(_ sender: UISegmentedControl) {
+    
+        calculateConversion()
+    
+    }
+    
+}    
 
